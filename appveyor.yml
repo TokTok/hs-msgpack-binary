@@ -8,7 +8,7 @@ install:
 
 build_script:
 - cabal update
-- cabal install happy
+- where happy || cabal install happy
 - cabal install --enable-tests --enable-benchmarks --disable-documentation --only-dependencies
 
 test_script:
