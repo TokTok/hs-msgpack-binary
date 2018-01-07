@@ -49,11 +49,11 @@ instance MonadPlus Option where
   mplus = (<|>)
 
 instance MessagePack a => MessagePack (Option a) where
-  toObject None = ObjectNil
+  toObject None     = ObjectNil
   toObject (Some a) = toObject a
 
   fromObject ObjectNil = return None
-  fromObject x = Some <$> fromObject x
+  fromObject x         = Some <$> fromObject x
 
 instance Arbitrary a => Arbitrary (Option a) where
   arbitrary = Gen.oneof
