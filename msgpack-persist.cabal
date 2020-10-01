@@ -1,4 +1,4 @@
-name:                 msgpack-binary
+name:                 msgpack-persist
 version:              0.0.14
 synopsis:             A Haskell implementation of MessagePack
 homepage:             http://msgpack.org/
@@ -14,9 +14,9 @@ build-type:           Simple
 description:
   A Haskell implementation of MessagePack <http://msgpack.org/>
   .
-  This is a fork of msgpack-haskell <https://github.com/msgpack/msgpack-haskell>,
-  since the original author is unreachable. This fork incorporates a number of
-  bugfixes and is actively being developed.
+  This is a fork of msgpack-binary <https://github.com/msgpack/msgpack-binary>, which
+  itself is a fork of msgpack-haskell <https://github.com/msgpack/msgpack-haskell>.
+  This package uses the persist library to read and write bytes.
 
 source-repository head
   type:             git
@@ -36,11 +36,10 @@ library
       Data.MessagePack.Put
   build-depends:
       base < 5
-    , binary >= 0.7.0.0
     , bytestring
-    , data-binary-ieee754
     , msgpack-types >= 0.0.1 && < 0.1.0
     , text
+    , persist
 
 executable msgpack-parser
   default-language: Haskell2010
@@ -54,7 +53,7 @@ executable msgpack-parser
       base < 5
     , bytestring
     , groom
-    , msgpack-binary
+    , msgpack-persist
 
 test-suite testsuite
   type: exitcode-stdio-1.0
@@ -74,7 +73,7 @@ test-suite testsuite
     , containers
     , hashable
     , hspec
-    , msgpack-binary
+    , msgpack-persist
     , msgpack-types
     , text
     , unordered-containers
@@ -97,4 +96,4 @@ benchmark benchmark
     , bytestring
     , criterion
     , deepseq
-    , msgpack-binary
+    , msgpack-persist

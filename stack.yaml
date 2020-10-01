@@ -1,5 +1,5 @@
 ---
 packages: [.]
-resolver: lts-14.27
+resolver: lts-16.15
 extra-deps:
-  - msgpack-types-0.0.4
+  - msgpack-types-0.0.4@sha256:3b045ea90ba9ba62de9538aa7e7915d1356e2cc34ebdb02f4472ee5b981bcab7,1940

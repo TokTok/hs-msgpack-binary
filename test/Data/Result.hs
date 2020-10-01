@@ -21,7 +21,6 @@ instance Applicative Result where
 
 instance Monad Result where
     return = Success
-    fail = Failure
 
     Success x   >>= f = f x
     Failure msg >>= _ = Failure msg

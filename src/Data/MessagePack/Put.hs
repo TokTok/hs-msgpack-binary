@@ -10,7 +10,7 @@
 -- Stability :  experimental
 -- Portability: portable
 --
--- MessagePack Serializer using @Data.Binary@
+-- MessagePack Serializer using @Data.Persist@
 --
 --------------------------------------------------------------------
 
@@ -29,22 +29,41 @@ module Data.MessagePack.Put
   , putExt
   ) where
 
-import           Data.Binary            (Put)
-import           Data.Binary.IEEE754    (putFloat32be, putFloat64be)
-import           Data.Binary.Put        (putByteString, putWord16be,
-                                         putWord32be, putWord64be, putWord8,
-                                         putWord8)
-import           Data.Bits              ((.|.))
-import qualified Data.ByteString        as S
-import           Data.Int               (Int64)
-import qualified Data.Text              as T
-import qualified Data.Text.Encoding     as T
-import           Data.Word              (Word64, Word8)
+import           Data.Bits ((.|.))
+import qualified Data.ByteString as S
+import           Data.Int (Int64)
+import           Data.Persist (put)
+import qualified Data.Persist as P
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
+import           Data.Word (Word64, Word32, Word16, Word8)
 
-import           Prelude                hiding (putStr)
+import           Prelude hiding (putStr)
 
 import           Data.MessagePack.Types (Object (..))
 
+type Put = P.Put ()
+
+putWord8 :: Word8 -> Put
+putWord8 = put
+
+putWord16be :: Word16 -> Put
+putWord16be = put . P.BigEndian
+
+putWord32be :: Word32 -> Put
+putWord32be = put . P.BigEndian
+
+putWord64be :: Word64 -> Put
+putWord64be = put . P.BigEndian
+
+putFloat32be :: Float -> Put
+putFloat32be = put . P.BigEndian
+
+putFloat64be :: Double -> Put
+putFloat64be = put . P.BigEndian
+
+putByteString :: S.ByteString -> Put
+putByteString = P.putByteString
 
 putObject :: Object -> Put
 putObject = \case

@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP  #-}
-{-# LANGUAGE Safe #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 --------------------------------------------------------------------
 -- |
@@ -25,19 +24,19 @@ module Data.MessagePack (
   , module X
   ) where
 
-import           Control.Applicative    (Applicative)
-import           Control.Monad          ((>=>))
-import           Data.Binary            (Binary (..), decodeOrFail, encode)
-import qualified Data.ByteString.Lazy   as L
+import           Control.Applicative (Applicative)
+import           Control.Monad ((>=>))
+import qualified Data.ByteString.Lazy as L
+import qualified Data.Persist as P
 
-import           Data.MessagePack.Get   as X
-import           Data.MessagePack.Put   as X
+import           Data.MessagePack.Get as X
+import           Data.MessagePack.Put as X
 import           Data.MessagePack.Types as X
 
 
 -- | Pack a Haskell value to MessagePack binary.
 pack :: MessagePack a => a -> L.ByteString
-pack = encode . toObject
+pack = L.fromStrict . P.runPut . P.put . toObject
 
 -- | Unpack MessagePack binary to a Haskell value. If it fails, it fails in the
 -- Monad. In the Maybe monad, failure returns Nothing.
@@ -47,13 +46,12 @@ unpack :: (Applicative m, Monad m, MonadFail m, MessagePack a)
 unpack :: (Applicative m, Monad m, MessagePack a)
 #endif
        => L.ByteString -> m a
-unpack = eitherToM . decodeOrFail >=> fromObject
-  where
-    eitherToM (Left  (_, _, msg)) = fail msg
-    eitherToM (Right (_, _, res)) = return res
 
+unpack bs = case P.runGet P.get (L.toStrict bs) of
+  Left err -> fail err
+  Right o -> fromObject o
 
-instance Binary Object where
+instance P.Persist Object where
   get = getObject
   {-# INLINE get #-}
 
