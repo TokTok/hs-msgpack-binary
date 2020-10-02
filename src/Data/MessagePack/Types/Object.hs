@@ -32,9 +32,9 @@ data Object
       -- ^ represents a floating point number
     | ObjectDouble {-# UNPACK #-} !Double
       -- ^ represents a floating point number
-    | ObjectStr                   !T.Text
+    | ObjectStr    {-# UNPACK #-} !T.Text
       -- ^ extending Raw type represents a UTF-8 string
-    | ObjectBin                   !S.ByteString
+    | ObjectBin    {-# UNPACK #-} !S.ByteString
       -- ^ extending Raw type represents a byte array
     | ObjectArray                 ![Object]
       -- ^ represents a sequence of objects
