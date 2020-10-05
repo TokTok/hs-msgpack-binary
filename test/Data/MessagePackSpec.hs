@@ -66,6 +66,10 @@ data Foo
   | Foo10 Int Int Int
   deriving (Eq, Show, Generic)
 
+instance MessagePack Void
+instance MessagePack a => MessagePack (Maybe a)
+instance (MessagePack a, MessagePack b) => MessagePack (Either a b)
+
 instance MessagePack Foo
 
 instance Arbitrary Foo where
