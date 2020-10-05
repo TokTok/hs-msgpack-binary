@@ -31,24 +31,15 @@ library
       -fno-warn-unused-imports
   exposed-modules:
       Data.MessagePack
-      Data.MessagePack.Types
   other-modules:
       Data.MessagePack.Get
       Data.MessagePack.Put
-      Data.MessagePack.Types.Assoc
-      Data.MessagePack.Types.Class
-      Data.MessagePack.Types.Object
   build-depends:
       base < 5
     , bytestring
+    , msgpack-types >= 0.0.1 && < 0.1.0
     , text
     , persist
-    , deepseq
-    , QuickCheck
-    , vector
-    , containers
-    , unordered-containers
-    , hashable
 
 executable msgpack-parser
   default-language: Haskell2010
@@ -83,6 +74,7 @@ test-suite testsuite
     , hashable
     , hspec
     , msgpack-persist
+    , msgpack-types
     , text
     , unordered-containers
     , vector
