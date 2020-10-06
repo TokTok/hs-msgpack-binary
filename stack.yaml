@@ -3,4 +3,4 @@ packages: [.]
 resolver: lts-16.15
 extra-deps:
   - github: bjornbugge/hs-msgpack-types
-    commit: 97d34633069d017bbd519b74b66dec664fc7c268
+    commit: 741ace6183a10cc9e7a516e76b6b4a4dd622b5dd
