@@ -29,16 +29,16 @@ module Data.MessagePack.Put
   , putExt
   ) where
 
-import           Data.Bits ((.|.))
-import qualified Data.ByteString as S
-import           Data.Int (Int64)
-import           Data.Persist (put)
-import qualified Data.Persist as P
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import           Data.Word (Word64, Word32, Word16, Word8)
+import           Data.Bits              ((.|.))
+import qualified Data.ByteString        as S
+import           Data.Int               (Int64)
+import           Data.Persist           (put)
+import qualified Data.Persist           as P
+import qualified Data.Text              as T
+import qualified Data.Text.Encoding     as T
+import           Data.Word              (Word64, Word32, Word16, Word8)
 
-import           Prelude hiding (putStr)
+import           Prelude                hiding (putStr)
 
 import           Data.MessagePack.Types (Object (..))
 

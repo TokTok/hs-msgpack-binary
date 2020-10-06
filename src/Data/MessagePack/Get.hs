@@ -19,16 +19,16 @@ module Data.MessagePack.Get
   ( getObject
   ) where
 
-import           Control.Applicative ((<$), (<$>), (<*>), (<|>))
-import           Control.Monad (guard, replicateM)
-import           Data.Bits ((.&.))
-import qualified Data.ByteString as S
-import           Data.Int (Int16, Int32, Int64, Int8)
-import           Data.Persist (Get, get, unBE)
-import qualified Data.Persist as P
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import           Data.Word (Word64, Word32, Word16, Word8)
+import           Control.Applicative    ((<$), (<$>), (<*>), (<|>))
+import           Control.Monad          (guard, replicateM)
+import           Data.Bits              ((.&.))
+import qualified Data.ByteString        as S
+import           Data.Int               (Int16, Int32, Int64, Int8)
+import           Data.Persist           (Get, get, unBE)
+import qualified Data.Persist           as P
+import qualified Data.Text              as T
+import qualified Data.Text.Encoding     as T
+import           Data.Word              (Word64, Word32, Word16, Word8)
 
 import           Data.MessagePack.Types (Object (..))
 

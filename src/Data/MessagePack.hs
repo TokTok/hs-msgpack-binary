@@ -24,13 +24,13 @@ module Data.MessagePack (
   , module X
   ) where
 
-import           Control.Applicative (Applicative)
-import           Control.Monad ((>=>))
-import qualified Data.ByteString.Lazy as L
-import qualified Data.Persist as P
+import           Control.Applicative    (Applicative)
+import           Control.Monad          ((>=>))
+import qualified Data.ByteString.Lazy   as L
+import qualified Data.Persist           as P
 
-import           Data.MessagePack.Get as X
-import           Data.MessagePack.Put as X
+import           Data.MessagePack.Get   as X
+import           Data.MessagePack.Put   as X
 import           Data.MessagePack.Types as X
 
 
