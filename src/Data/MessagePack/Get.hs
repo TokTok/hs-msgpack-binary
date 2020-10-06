@@ -28,7 +28,7 @@ import           Data.Persist           (Get, get, unBE)
 import qualified Data.Persist           as P
 import qualified Data.Text              as T
 import qualified Data.Text.Encoding     as T
-import           Data.Word              (Word64, Word32, Word16, Word8)
+import           Data.Word              (Word16, Word32, Word64, Word8)
 
 import           Data.MessagePack.Types (Object (..))
 

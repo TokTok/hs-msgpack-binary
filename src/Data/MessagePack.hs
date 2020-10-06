@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP  #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 --------------------------------------------------------------------
 -- |
@@ -49,7 +49,7 @@ unpack :: (Applicative m, Monad m, MessagePack a)
 
 unpack bs = case P.runGet P.get (L.toStrict bs) of
   Left err -> fail err
-  Right o -> fromObject o
+  Right o  -> fromObject o
 
 instance P.Persist Object where
   get = getObject

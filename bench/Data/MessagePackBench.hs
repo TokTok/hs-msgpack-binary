@@ -1,5 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric  #-}
 module Data.MessagePackBench (suite) where
 
 import           Control.DeepSeq           (NFData)
@@ -10,7 +10,7 @@ import           Test.QuickCheck.Arbitrary (Arbitrary, arbitrary)
 import           Test.QuickCheck.Gen       (resize, unGen)
 import           Test.QuickCheck.Random    (mkQCGen)
 
-import GHC.Generics
+import           GHC.Generics
 
 import           Data.MessagePack
 
