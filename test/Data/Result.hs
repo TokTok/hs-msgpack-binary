@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE Safe          #-}
+{-# LANGUAGE StrictData    #-}
 module Data.Result
     ( Result (..)
     ) where
