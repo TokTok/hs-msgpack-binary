@@ -13,8 +13,8 @@ import           Control.Applicative        ((<$>), (<*>))
 import qualified Data.ByteString.Char8      as S
 import qualified Data.ByteString.Lazy       as L8
 import qualified Data.ByteString.Lazy.Char8 as L
-import qualified Data.HashMap.Strict        as HashMap
 import           Data.Hashable              (Hashable)
+import qualified Data.HashMap.Strict        as HashMap
 import           Data.Int                   (Int16, Int32, Int64, Int8)
 import qualified Data.IntMap                as IntMap
 import qualified Data.Map                   as Map
@@ -145,7 +145,6 @@ spec = do
       checkMessage (unpack (pack $ ObjectInt (-1)) :: R.Result Foo)
       checkMessage (unpack (pack [ObjectInt (-1), ObjectInt 0]) :: R.Result Foo)
       checkMessage (unpack (pack $ ObjectArray []) :: R.Result TyConArgs)
-      checkMessage (unpack (pack [0 :: Int, 1, 2, 3]) :: R.Result TyConArgs)
       checkMessage (unpack (pack $ ObjectArray []) :: R.Result Record)
       checkMessage (unpack (pack [0 :: Int, 1, 2, 3]) :: R.Result Record)
       checkMessage (unpack (pack "") :: R.Result Unit)
@@ -335,16 +334,16 @@ spec = do
 
   describe "show" $ do
     it "Foo" $ do
-      show (toObject Foo1) `shouldBe` "ObjectWord 0"
-      show (toObject $ Foo3 3) `shouldBe` "ObjectArray [ObjectWord 2,ObjectWord 3]"
-      show (toObject $ Foo3 (-3)) `shouldBe` "ObjectArray [ObjectWord 2,ObjectInt (-3)]"
-      show (toObject $ Foo8 3 5) `shouldBe` "ObjectArray [ObjectWord 7,ObjectArray [ObjectWord 3,ObjectWord 5]]"
-      show (toObject $ Foo8 (-3) (-5)) `shouldBe` "ObjectArray [ObjectWord 7,ObjectArray [ObjectInt (-3),ObjectInt (-5)]]"
-      show (toObject $ Foo9 3 5 7) `shouldBe` "ObjectArray [ObjectWord 8,ObjectArray [ObjectWord 3,ObjectWord 5,ObjectWord 7]]"
-      show (toObject $ Foo9 (-3) (-5) 7) `shouldBe` "ObjectArray [ObjectWord 8,ObjectArray [ObjectInt (-3),ObjectInt (-5),ObjectWord 7]]"
+      show (toObject defaultConfig Foo1) `shouldBe` "ObjectWord 0"
+      show (toObject defaultConfig $ Foo3 3) `shouldBe` "ObjectArray [ObjectWord 2,ObjectWord 3]"
+      show (toObject defaultConfig $ Foo3 (-3)) `shouldBe` "ObjectArray [ObjectWord 2,ObjectInt (-3)]"
+      show (toObject defaultConfig $ Foo8 3 5) `shouldBe` "ObjectArray [ObjectWord 7,ObjectArray [ObjectWord 3,ObjectWord 5]]"
+      show (toObject defaultConfig $ Foo8 (-3) (-5)) `shouldBe` "ObjectArray [ObjectWord 7,ObjectArray [ObjectInt (-3),ObjectInt (-5)]]"
+      show (toObject defaultConfig $ Foo9 3 5 7) `shouldBe` "ObjectArray [ObjectWord 8,ObjectArray [ObjectWord 3,ObjectWord 5,ObjectWord 7]]"
+      show (toObject defaultConfig $ Foo9 (-3) (-5) 7) `shouldBe` "ObjectArray [ObjectWord 8,ObjectArray [ObjectInt (-3),ObjectInt (-5),ObjectWord 7]]"
 
     it "TyConArgs" $
-      show (toObject $ TyConArgs 3 5 7) `shouldBe` "ObjectArray [ObjectWord 3,ObjectWord 5,ObjectWord 7]"
+      show (toObject defaultConfig $ TyConArgs 3 5 7) `shouldBe` "ObjectArray [ObjectWord 3,ObjectWord 5,ObjectWord 7]"
 
     it "Record" $
-      show (toObject $ Record 3 5 "7") `shouldBe` "ObjectArray [ObjectWord 3,ObjectDouble 5.0,ObjectStr \"7\"]"
+      show (toObject defaultConfig $ Record 3 5 "7") `shouldBe` "ObjectArray [ObjectWord 3,ObjectDouble 5.0,ObjectStr \"7\"]"

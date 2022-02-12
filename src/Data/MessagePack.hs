@@ -1,6 +1,8 @@
-{-# LANGUAGE CPP  #-}
-{-# LANGUAGE Safe #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE CPP                   #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE Trustworthy           #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 --------------------------------------------------------------------
 -- |
 -- Module    : Data.MessagePack
@@ -19,6 +21,8 @@ module Data.MessagePack (
   -- * Simple interface to pack and unpack msgpack binary
     pack
   , unpack
+  , unpackEither
+  , unpackValidate
 
   -- * Re-export modules
   -- $reexports
@@ -27,7 +31,9 @@ module Data.MessagePack (
 
 import           Control.Applicative    (Applicative)
 import           Control.Monad          ((>=>))
+import           Control.Monad.Validate (MonadValidate (..), runValidate)
 import           Data.Binary            (Binary (..), decodeOrFail, encode)
+import           Data.Binary.Get        (Get)
 import qualified Data.ByteString.Lazy   as L
 
 import           Data.MessagePack.Get   as X
@@ -37,7 +43,23 @@ import           Data.MessagePack.Types as X
 
 -- | Pack a Haskell value to MessagePack binary.
 pack :: MessagePack a => a -> L.ByteString
-pack = encode . toObject
+pack = encode . toObject defaultConfig
+
+-- | Unpack MessagePack binary to a Haskell value.
+--
+-- On failure, returns a list of error messages.
+unpackValidate :: (MonadValidate DecodeError m, MessagePack a)
+               => L.ByteString -> m a
+unpackValidate = eitherToM . decodeOrFail >=> fromObjectWith defaultConfig
+  where
+    eitherToM (Left  (_, _, msg)) = refute $ decodeError msg
+    eitherToM (Right (_, _, res)) = return res
+
+
+unpackEither :: (MessagePack a)
+               => L.ByteString -> Either DecodeError a
+unpackEither = runValidate . unpackValidate
+
 
 -- | Unpack MessagePack binary to a Haskell value. If it fails, it fails in the
 -- Monad. In the Maybe monad, failure returns Nothing.
@@ -47,10 +69,10 @@ unpack :: (Applicative m, Monad m, MonadFail m, MessagePack a)
 unpack :: (Applicative m, Monad m, MessagePack a)
 #endif
        => L.ByteString -> m a
-unpack = eitherToM . decodeOrFail >=> fromObject
+unpack = eitherToM . unpackEither
   where
-    eitherToM (Left  (_, _, msg)) = fail msg
-    eitherToM (Right (_, _, res)) = return res
+    eitherToM (Left msgs) = fail $ show msgs
+    eitherToM (Right res) = return res
 
 
 instance Binary Object where
@@ -59,3 +81,7 @@ instance Binary Object where
 
   put = putObject
   {-# INLINE put #-}
+
+instance MonadValidate DecodeError Get where
+    refute = fail . show
+    tolerate m = m >> return Nothing

@@ -20,6 +20,7 @@ haskell_library(
         hazel_library("binary"),
         hazel_library("bytestring"),
         hazel_library("data-binary-ieee754"),
+        hazel_library("monad-validate"),
         hazel_library("text"),
     ],
 )
