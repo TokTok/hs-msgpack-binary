@@ -13,8 +13,8 @@ import           Control.Applicative        ((<$>), (<*>))
 import qualified Data.ByteString.Char8      as S
 import qualified Data.ByteString.Lazy       as L8
 import qualified Data.ByteString.Lazy.Char8 as L
-import           Data.Hashable              (Hashable)
 import qualified Data.HashMap.Strict        as HashMap
+import           Data.Hashable              (Hashable)
 import           Data.Int                   (Int16, Int32, Int64, Int8)
 import qualified Data.IntMap                as IntMap
 import qualified Data.Map                   as Map
