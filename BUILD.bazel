@@ -22,24 +22,17 @@ haskell_library(
         hazel_library("data-binary-ieee754"),
         hazel_library("monad-validate"),
         hazel_library("text"),
+        hazel_library("vector"),
     ],
 )
 
 hspec_test(
     name = "testsuite",
     size = "small",
-    compiler_flags = ["-Wno-unused-imports"],
     deps = [
         ":hs-msgpack-binary",
-        "//hs-msgpack-types",
-        hazel_library("QuickCheck"),
+        "//hs-msgpack-testsuite",
         hazel_library("base"),
-        hazel_library("bytestring"),
-        hazel_library("containers"),
-        hazel_library("hashable"),
         hazel_library("hspec"),
-        hazel_library("text"),
-        hazel_library("unordered-containers"),
-        hazel_library("vector"),
     ],
 )

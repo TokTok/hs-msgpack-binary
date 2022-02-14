@@ -41,6 +41,7 @@ import qualified Data.ByteString        as S
 import           Data.Int               (Int16, Int32, Int64, Int8)
 import qualified Data.Text              as T
 import qualified Data.Text.Encoding     as T
+import qualified Data.Vector            as V
 import           Data.Word              (Word64, Word8)
 
 import           Data.MessagePack.Types (Object (..))
@@ -118,7 +119,7 @@ getBin = do
     _    -> empty
   getByteString len
 
-getArray :: Get a -> Get [a]
+getArray :: Get a -> Get (V.Vector a)
 getArray g = do
   len <- getWord8 >>= \case
     t | t .&. 0xF0 == 0x90 ->
@@ -126,9 +127,9 @@ getArray g = do
     0xDC -> fromIntegral <$> getWord16be
     0xDD -> fromIntegral <$> getWord32be
     _    -> empty
-  replicateM len g
+  V.replicateM len g
 
-getMap :: Get a -> Get b -> Get [(a, b)]
+getMap :: Get a -> Get b -> Get (V.Vector (a, b))
 getMap k v = do
   len <- getWord8 >>= \case
     t | t .&. 0xF0 == 0x80 ->
@@ -136,7 +137,7 @@ getMap k v = do
     0xDE -> fromIntegral <$> getWord16be
     0xDF -> fromIntegral <$> getWord32be
     _    -> empty
-  replicateM len $ (,) <$> k <*> v
+  V.replicateM len $ (,) <$> k <*> v
 
 getExt :: Get (Word8, S.ByteString)
 getExt = do
