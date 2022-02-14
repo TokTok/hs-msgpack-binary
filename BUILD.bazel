@@ -12,7 +12,7 @@ haskell_library(
     srcs = glob(["src/**/*.*hs"]),
     compiler_flags = ["-Wno-unused-imports"],
     src_strip_prefix = "src",
-    version = "0.0.15",
+    version = "0.0.16",
     visibility = ["//visibility:public"],
     deps = [
         "//hs-msgpack-types",
