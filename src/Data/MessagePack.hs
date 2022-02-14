@@ -18,20 +18,21 @@
 --------------------------------------------------------------------
 
 module Data.MessagePack (
-  -- * Simple interface to pack and unpack msgpack binary
-    pack
-  , unpack
-  , unpackEither
-  , unpackValidate
+    -- * Simple interface to pack and unpack msgpack binary
+      pack
+    , unpack
+    , unpackEither
+    , unpackValidate
 
-  -- * Re-export modules
-  -- $reexports
-  , module X
-  ) where
+    -- * Re-export modules
+    -- $reexports
+    , module X
+    ) where
 
 import           Control.Applicative    (Applicative)
 import           Control.Monad          ((>=>))
-import           Control.Monad.Validate (MonadValidate (..), runValidate)
+import           Control.Monad.Validate (MonadValidate (..), Validate,
+                                         runValidate)
 import           Data.Binary            (Binary (..), decodeOrFail, encode)
 import           Data.Binary.Get        (Get)
 import qualified Data.ByteString.Lazy   as L
@@ -48,8 +49,8 @@ pack = encode . toObject defaultConfig
 -- | Unpack MessagePack binary to a Haskell value.
 --
 -- On failure, returns a list of error messages.
-unpackValidate :: (MonadValidate DecodeError m, MessagePack a)
-               => L.ByteString -> m a
+unpackValidate :: MessagePack a
+               => L.ByteString -> Validate DecodeError a
 unpackValidate = eitherToM . decodeOrFail >=> fromObjectWith defaultConfig
   where
     eitherToM (Left  (_, _, msg)) = refute $ decodeError msg
@@ -76,11 +77,12 @@ unpack = eitherToM . unpackEither
 
 
 instance Binary Object where
-  get = getObject
-  {-# INLINE get #-}
+    get = getObject
+    {-# INLINE get #-}
 
-  put = putObject
-  {-# INLINE put #-}
+    put = putObject
+    {-# INLINE put #-}
+
 
 instance MonadValidate DecodeError Get where
     refute = fail . show

@@ -39,6 +39,7 @@ import qualified Data.ByteString        as S
 import           Data.Int               (Int64)
 import qualified Data.Text              as T
 import qualified Data.Text.Encoding     as T
+import qualified Data.Vector            as V
 import           Data.Word              (Word64, Word8)
 
 import           Prelude                hiding (putStr)
@@ -70,36 +71,36 @@ putBool True  = putWord8 0xC3
 putInt :: Int64 -> Put
 putInt n
   | -0x20 <= n && n < 0x80 =
-                     putWord8     (fromIntegral n)
+                     putWord8    (fromIntegral n)
   | 0     <= n && n < 0x100 =
-    putWord8 0xCC >> putWord8     (fromIntegral n)
+    putWord8 0xCC >> putWord8    (fromIntegral n)
   | 0     <= n && n < 0x10000 =
-    putWord8 0xCD >> putWord16be  (fromIntegral n)
+    putWord8 0xCD >> putWord16be (fromIntegral n)
   | 0     <= n && n < 0x100000000 =
-    putWord8 0xCE >> putWord32be  (fromIntegral n)
+    putWord8 0xCE >> putWord32be (fromIntegral n)
   | 0     <= n =
-    putWord8 0xCF >> putWord64be  (fromIntegral n)
+    putWord8 0xCF >> putWord64be (fromIntegral n)
   | -0x80 <= n =
-    putWord8 0xD0 >> putWord8     (fromIntegral n)
+    putWord8 0xD0 >> putWord8    (fromIntegral n)
   | -0x8000 <= n =
-    putWord8 0xD1 >> putWord16be  (fromIntegral n)
+    putWord8 0xD1 >> putWord16be (fromIntegral n)
   | -0x80000000 <= n =
-    putWord8 0xD2 >> putWord32be  (fromIntegral n)
+    putWord8 0xD2 >> putWord32be (fromIntegral n)
   | otherwise =
     putWord8 0xD3 >> putWord64be (fromIntegral n)
 
 putWord :: Word64 -> Put
 putWord n
   | n < 0x80 =
-                     putWord8     (fromIntegral n)
+                     putWord8    (fromIntegral n)
   | n < 0x100 =
-    putWord8 0xCC >> putWord8     (fromIntegral n)
+    putWord8 0xCC >> putWord8    (fromIntegral n)
   | n < 0x10000 =
-    putWord8 0xCD >> putWord16be  (fromIntegral n)
+    putWord8 0xCD >> putWord16be (fromIntegral n)
   | n < 0x100000000 =
-    putWord8 0xCE >> putWord32be  (fromIntegral n)
+    putWord8 0xCE >> putWord32be (fromIntegral n)
   | otherwise =
-    putWord8 0xCF >> putWord64be  n
+    putWord8 0xCF >> putWord64be n
 
 putFloat :: Float -> Put
 putFloat f = do
@@ -136,27 +137,27 @@ putBin bs = do
           putWord8 0xC6 >> putWord32be (fromIntegral len)
   putByteString bs
 
-putArray :: (a -> Put) -> [a] -> Put
+putArray :: (a -> Put) -> V.Vector a -> Put
 putArray p xs = do
-  case length xs of
+  case V.length xs of
     len | len <= 15 ->
           putWord8 $ 0x90 .|. fromIntegral len
         | len < 0x10000 ->
           putWord8 0xDC >> putWord16be (fromIntegral len)
         | otherwise ->
           putWord8 0xDD >> putWord32be (fromIntegral len)
-  mapM_ p xs
+  V.mapM_ p xs
 
-putMap :: (a -> Put) -> (b -> Put) -> [(a, b)] -> Put
+putMap :: (a -> Put) -> (b -> Put) -> V.Vector (a, b) -> Put
 putMap p q xs = do
-  case length xs of
+  case V.length xs of
     len | len <= 15 ->
           putWord8 $ 0x80 .|. fromIntegral len
         | len < 0x10000 ->
           putWord8 0xDE >> putWord16be (fromIntegral len)
         | otherwise ->
           putWord8 0xDF >> putWord32be (fromIntegral len)
-  mapM_ (\(a, b) -> p a >> q b) xs
+  V.mapM_ (\(a, b) -> p a >> q b) xs
 
 putExt :: Word8 -> S.ByteString -> Put
 putExt typ dat = do

@@ -14,3 +14,18 @@ haskell_binary(
         hazel_library("groom"),
     ],
 )
+
+haskell_binary(
+    name = "msgpack-gen-sample",
+    srcs = ["msgpack-gen-sample.hs"],
+    deps = [
+        "//hs-msgpack-arbitrary",
+        "//hs-msgpack-binary",
+        hazel_library("QuickCheck"),
+        hazel_library("base"),
+        hazel_library("bytestring"),
+        hazel_library("quickcheck-instances"),
+        hazel_library("time"),
+        hazel_library("vector"),
+    ],
+)
