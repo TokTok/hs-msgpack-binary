@@ -117,7 +117,7 @@ getBin = do
     TAG_bin_8  -> fromIntegral <$> getWord8
     TAG_bin_16 -> fromIntegral <$> getWord16be
     TAG_bin_32 -> fromIntegral <$> getWord32be
-    _    -> empty
+    _          -> empty
   getByteString len
 
 getArray :: Get a -> Get (V.Vector a)
@@ -151,7 +151,7 @@ getExt = do
     TAG_ext_8     -> fromIntegral <$> getWord8
     TAG_ext_16    -> fromIntegral <$> getWord16be
     TAG_ext_32    -> fromIntegral <$> getWord32be
-    _    -> empty
+    _             -> empty
   (,) <$> getWord8 <*> getByteString len
 
 getInt8 :: Get Int8
