@@ -3,6 +3,6 @@ packages: [.]
 resolver: lts-18.18
 extra-deps:
   - monad-validate-1.2.0.0@sha256:9850f408431098b28806dd464b6825a88a0b56c84f380d7fe0454c1df9d6f881,3505
-  - msgpack-arbitrary-0.1.0
+  - msgpack-arbitrary-0.1.1
   - msgpack-testsuite-0.0.16
   - msgpack-types-0.3.0

@@ -44,6 +44,7 @@ import qualified Data.Text.Encoding     as T
 import qualified Data.Vector            as V
 import           Data.Word              (Word64, Word8)
 
+import           Data.MessagePack.Tags
 import           Data.MessagePack.Types (Object (..))
 
 getObject :: Get Object
@@ -61,22 +62,22 @@ getObject =
   <|> uncurry ObjectExt <$> getExt
 
 getNil :: Get ()
-getNil = tag 0xC0
+getNil = tag TAG_nil
 
 getBool :: Get Bool
 getBool =
-  False <$ tag 0xC2 <|>
-  True  <$ tag 0xC3
+  False <$ tag TAG_false <|>
+  True  <$ tag TAG_true
 
 getInt :: Get Int64
 getInt =
   getWord8 >>= \case
     c | c .&. 0xE0 == 0xE0 ->
         return $ fromIntegral (fromIntegral c :: Int8)
-    0xD0 -> fromIntegral <$> getInt8
-    0xD1 -> fromIntegral <$> getInt16be
-    0xD2 -> fromIntegral <$> getInt32be
-    0xD3 -> fromIntegral <$> getInt64be
+    TAG_int_8  -> fromIntegral <$> getInt8
+    TAG_int_16 -> fromIntegral <$> getInt16be
+    TAG_int_32 -> fromIntegral <$> getInt32be
+    TAG_int_64 -> fromIntegral <$> getInt64be
     _    -> empty
 
 getWord :: Get Word64
@@ -84,26 +85,26 @@ getWord =
   getWord8 >>= \case
     c | c .&. 0x80 == 0x00 ->
         return $ fromIntegral c
-    0xCC -> fromIntegral <$> getWord8
-    0xCD -> fromIntegral <$> getWord16be
-    0xCE -> fromIntegral <$> getWord32be
-    0xCF -> fromIntegral <$> getWord64be
+    TAG_uint_8  -> fromIntegral <$> getWord8
+    TAG_uint_16 -> fromIntegral <$> getWord16be
+    TAG_uint_32 -> fromIntegral <$> getWord32be
+    TAG_uint_64 -> fromIntegral <$> getWord64be
     _    -> empty
 
 getFloat :: Get Float
-getFloat = tag 0xCA >> getFloat32be
+getFloat = tag TAG_float_32 >> getFloat32be
 
 getDouble :: Get Double
-getDouble = tag 0xCB >> getFloat64be
+getDouble = tag TAG_float_64 >> getFloat64be
 
 getStr :: Get T.Text
 getStr = do
   len <- getWord8 >>= \case
     t | t .&. 0xE0 == 0xA0 ->
       return $ fromIntegral $ t .&. 0x1F
-    0xD9 -> fromIntegral <$> getWord8
-    0xDA -> fromIntegral <$> getWord16be
-    0xDB -> fromIntegral <$> getWord32be
+    TAG_str_8  -> fromIntegral <$> getWord8
+    TAG_str_16 -> fromIntegral <$> getWord16be
+    TAG_str_32 -> fromIntegral <$> getWord32be
     _    -> empty
   bs <- getByteString len
   case T.decodeUtf8' bs of
@@ -113,9 +114,9 @@ getStr = do
 getBin :: Get S.ByteString
 getBin = do
   len <- getWord8 >>= \case
-    0xC4 -> fromIntegral <$> getWord8
-    0xC5 -> fromIntegral <$> getWord16be
-    0xC6 -> fromIntegral <$> getWord32be
+    TAG_bin_8  -> fromIntegral <$> getWord8
+    TAG_bin_16 -> fromIntegral <$> getWord16be
+    TAG_bin_32 -> fromIntegral <$> getWord32be
     _    -> empty
   getByteString len
 
@@ -124,8 +125,8 @@ getArray g = do
   len <- getWord8 >>= \case
     t | t .&. 0xF0 == 0x90 ->
       return $ fromIntegral $ t .&. 0x0F
-    0xDC -> fromIntegral <$> getWord16be
-    0xDD -> fromIntegral <$> getWord32be
+    TAG_array_16 -> fromIntegral <$> getWord16be
+    TAG_array_32 -> fromIntegral <$> getWord32be
     _    -> empty
   V.replicateM len g
 
@@ -134,22 +135,22 @@ getMap k v = do
   len <- getWord8 >>= \case
     t | t .&. 0xF0 == 0x80 ->
       return $ fromIntegral $ t .&. 0x0F
-    0xDE -> fromIntegral <$> getWord16be
-    0xDF -> fromIntegral <$> getWord32be
+    TAG_map_16 -> fromIntegral <$> getWord16be
+    TAG_map_32 -> fromIntegral <$> getWord32be
     _    -> empty
   V.replicateM len $ (,) <$> k <*> v
 
 getExt :: Get (Word8, S.ByteString)
 getExt = do
   len <- getWord8 >>= \case
-    0xD4 -> return 1
-    0xD5 -> return 2
-    0xD6 -> return 4
-    0xD7 -> return 8
-    0xD8 -> return 16
-    0xC7 -> fromIntegral <$> getWord8
-    0xC8 -> fromIntegral <$> getWord16be
-    0xC9 -> fromIntegral <$> getWord32be
+    TAG_fixext_1  -> return 1
+    TAG_fixext_2  -> return 2
+    TAG_fixext_4  -> return 4
+    TAG_fixext_8  -> return 8
+    TAG_fixext_16 -> return 16
+    TAG_ext_8     -> fromIntegral <$> getWord8
+    TAG_ext_16    -> fromIntegral <$> getWord16be
+    TAG_ext_32    -> fromIntegral <$> getWord32be
     _    -> empty
   (,) <$> getWord8 <*> getByteString len
 

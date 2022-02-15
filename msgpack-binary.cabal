@@ -56,7 +56,7 @@ executable msgpack-gen-sample
       base < 5
     , QuickCheck
     , bytestring
-    , msgpack-arbitrary
+    , msgpack-arbitrary         >= 0.1.1
     , msgpack-binary
     , quickcheck-instances
     , time
@@ -73,7 +73,6 @@ executable msgpack-parser
   build-depends:
       base < 5
     , bytestring
-    , groom
     , msgpack-binary
 
 test-suite testsuite

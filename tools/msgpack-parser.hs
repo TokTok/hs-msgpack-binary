@@ -1,4 +1,4 @@
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 -- | A MessagePack parser.
 --
 -- Example usage:
@@ -31,20 +31,25 @@
 --
 module Main where
 
-import           Control.Applicative        ((<$>), (<|>))
+import           Control.Applicative        ((<|>))
 import qualified Data.ByteString.Lazy       as L
 import qualified Data.ByteString.Lazy.Char8 as L8
+import           Data.Int                   (Int64)
 import           Data.Maybe                 (fromMaybe)
 import           Data.MessagePack           (Object, pack, unpack)
-import           Text.Groom                 (groom)
 import           Text.Read                  (readMaybe)
+
+
+display :: Int64 -> Object -> String
+display len | len > 10 * 1024 = const $ show len <> " bytes (too large to display)"
+display _   = show
 
 
 parse :: L.ByteString -> L.ByteString
 parse str = fromMaybe L.empty $
   pack <$> (readMaybe $ L8.unpack str :: Maybe Object)
   <|>
-  L8.pack . flip (++) "\n" . groom <$> (unpack str :: Maybe Object)
+  L8.pack . flip (++) "\n" . display (L.length str) <$> (unpack str :: Maybe Object)
 
 
 main :: IO ()

@@ -6,12 +6,10 @@ package(features = ["-layering_check"])
 haskell_binary(
     name = "msgpack-parser",
     srcs = ["msgpack-parser.hs"],
-    compiler_flags = ["-Wno-unused-imports"],
     deps = [
         "//hs-msgpack-binary",
         hazel_library("base"),
         hazel_library("bytestring"),
-        hazel_library("groom"),
     ],
 )
 
@@ -21,11 +19,6 @@ haskell_binary(
     deps = [
         "//hs-msgpack-arbitrary",
         "//hs-msgpack-binary",
-        hazel_library("QuickCheck"),
         hazel_library("base"),
-        hazel_library("bytestring"),
-        hazel_library("quickcheck-instances"),
-        hazel_library("time"),
-        hazel_library("vector"),
     ],
 )
