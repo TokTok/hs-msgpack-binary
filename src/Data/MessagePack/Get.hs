@@ -15,20 +15,7 @@
 --
 --------------------------------------------------------------------
 
-module Data.MessagePack.Get
-  ( getObject
-  , getNil
-  , getBool
-  , getInt
-  , getWord
-  , getFloat
-  , getDouble
-  , getStr
-  , getBin
-  , getArray
-  , getMap
-  , getExt
-  ) where
+module Data.MessagePack.Get (getObject) where
 
 import           Control.Applicative    (empty, (<$), (<$>), (<*>), (<|>))
 import           Control.Monad          (guard, replicateM)
@@ -48,111 +35,49 @@ import           Data.MessagePack.Tags
 import           Data.MessagePack.Types (Object (..))
 
 getObject :: Get Object
-getObject =
-      ObjectNil    <$  getNil
-  <|> ObjectBool   <$> getBool
-  <|> ObjectInt    <$> getInt
-  <|> ObjectWord   <$> getWord
-  <|> ObjectFloat  <$> getFloat
-  <|> ObjectDouble <$> getDouble
-  <|> ObjectStr    <$> getStr
-  <|> ObjectBin    <$> getBin
-  <|> ObjectArray  <$> getArray getObject
-  <|> ObjectMap    <$> getMap getObject getObject
-  <|> uncurry ObjectExt <$> getExt
+getObject = getWord8 >>= \case
+  TAG_nil       -> pure ObjectNil
+  TAG_false     -> pure $ ObjectBool False
+  TAG_true      -> pure $ ObjectBool True
+  c | c .&. 0xE0 == 0xE0 -> pure $ ObjectInt $ fromIntegral (fromIntegral c :: Int8)
+  TAG_int_8     -> ObjectInt . fromIntegral <$> getInt8
+  TAG_int_16    -> ObjectInt . fromIntegral <$> getInt16be
+  TAG_int_32    -> ObjectInt . fromIntegral <$> getInt32be
+  TAG_int_64    -> ObjectInt . fromIntegral <$> getInt64be
+  c | c .&. 0x80 == 0x00 -> pure $ ObjectWord $ fromIntegral c
+  TAG_uint_8    -> ObjectWord . fromIntegral <$> getWord8
+  TAG_uint_16   -> ObjectWord . fromIntegral <$> getWord16be
+  TAG_uint_32   -> ObjectWord . fromIntegral <$> getWord32be
+  TAG_uint_64   -> ObjectWord . fromIntegral <$> getWord64be
+  TAG_float_32  -> ObjectFloat  <$> getFloat32be
+  TAG_float_64  -> ObjectDouble <$> getFloat64be
+  t | t .&. 0xE0 == 0xA0 -> let len = fromIntegral $ t .&. 0x1F in ObjectStr <$> (getByteString len >>= decodeStr)
+  TAG_str_8     -> ObjectStr <$> (fromIntegral <$> getWord8    >>= getByteString >>= decodeStr)
+  TAG_str_16    -> ObjectStr <$> (fromIntegral <$> getWord16be >>= getByteString >>= decodeStr)
+  TAG_str_32    -> ObjectStr <$> (fromIntegral <$> getWord32be >>= getByteString >>= decodeStr)
+  TAG_bin_8     -> ObjectBin <$> (fromIntegral <$> getWord8    >>= getByteString)
+  TAG_bin_16    -> ObjectBin <$> (fromIntegral <$> getWord16be >>= getByteString)
+  TAG_bin_32    -> ObjectBin <$> (fromIntegral <$> getWord32be >>= getByteString)
+  t | t .&. 0xF0 == 0x90 -> let len = fromIntegral $ t .&. 0x0F in ObjectArray <$> V.replicateM len getObject
+  TAG_array_16  -> fromIntegral <$> getWord16be >>= \len -> ObjectArray <$> V.replicateM len getObject
+  TAG_array_32  -> fromIntegral <$> getWord32be >>= \len -> ObjectArray <$> V.replicateM len getObject
+  t | t .&. 0xF0 == 0x80 -> let len =  fromIntegral $ t .&. 0x0F in ObjectMap <$> V.replicateM len ((,) <$> getObject <*> getObject)
+  TAG_map_16    -> fromIntegral <$> getWord16be >>= \len -> ObjectMap <$> V.replicateM len ((,) <$> getObject <*> getObject)
+  TAG_map_32    -> fromIntegral <$> getWord32be >>= \len -> ObjectMap <$> V.replicateM len ((,) <$> getObject <*> getObject)
+  TAG_fixext_1  -> ObjectExt <$> getWord8 <*> getByteString 1
+  TAG_fixext_2  -> ObjectExt <$> getWord8 <*> getByteString 2
+  TAG_fixext_4  -> ObjectExt <$> getWord8 <*> getByteString 4
+  TAG_fixext_8  -> ObjectExt <$> getWord8 <*> getByteString 8
+  TAG_fixext_16 -> ObjectExt <$> getWord8 <*> getByteString 16
+  TAG_ext_8     -> fromIntegral <$> getWord8    >>= \len -> ObjectExt <$> getWord8 <*> getByteString len
+  TAG_ext_16    -> fromIntegral <$> getWord16be >>= \len -> ObjectExt <$> getWord8 <*> getByteString len
+  TAG_ext_32    -> fromIntegral <$> getWord32be >>= \len -> ObjectExt <$> getWord8 <*> getByteString len
+  _ -> fail "Data.MessagePack.Get.getObject: Encountered invalid byte"
 
-getNil :: Get ()
-getNil = tag TAG_nil
-
-getBool :: Get Bool
-getBool =
-  False <$ tag TAG_false <|>
-  True  <$ tag TAG_true
-
-getInt :: Get Int64
-getInt =
-  getWord8 >>= \case
-    c | c .&. 0xE0 == 0xE0 ->
-        return $ fromIntegral (fromIntegral c :: Int8)
-    TAG_int_8  -> fromIntegral <$> getInt8
-    TAG_int_16 -> fromIntegral <$> getInt16be
-    TAG_int_32 -> fromIntegral <$> getInt32be
-    TAG_int_64 -> fromIntegral <$> getInt64be
-    _    -> empty
-
-getWord :: Get Word64
-getWord =
-  getWord8 >>= \case
-    c | c .&. 0x80 == 0x00 ->
-        return $ fromIntegral c
-    TAG_uint_8  -> fromIntegral <$> getWord8
-    TAG_uint_16 -> fromIntegral <$> getWord16be
-    TAG_uint_32 -> fromIntegral <$> getWord32be
-    TAG_uint_64 -> fromIntegral <$> getWord64be
-    _    -> empty
-
-getFloat :: Get Float
-getFloat = tag TAG_float_32 >> getFloat32be
-
-getDouble :: Get Double
-getDouble = tag TAG_float_64 >> getFloat64be
-
-getStr :: Get T.Text
-getStr = do
-  len <- getWord8 >>= \case
-    t | t .&. 0xE0 == 0xA0 ->
-      return $ fromIntegral $ t .&. 0x1F
-    TAG_str_8  -> fromIntegral <$> getWord8
-    TAG_str_16 -> fromIntegral <$> getWord16be
-    TAG_str_32 -> fromIntegral <$> getWord32be
-    _    -> empty
-  bs <- getByteString len
-  case T.decodeUtf8' bs of
-    Left  _ -> empty
-    Right v -> return v
-
-getBin :: Get S.ByteString
-getBin = do
-  len <- getWord8 >>= \case
-    TAG_bin_8  -> fromIntegral <$> getWord8
-    TAG_bin_16 -> fromIntegral <$> getWord16be
-    TAG_bin_32 -> fromIntegral <$> getWord32be
-    _          -> empty
-  getByteString len
-
-getArray :: Get a -> Get (V.Vector a)
-getArray g = do
-  len <- getWord8 >>= \case
-    t | t .&. 0xF0 == 0x90 ->
-      return $ fromIntegral $ t .&. 0x0F
-    TAG_array_16 -> fromIntegral <$> getWord16be
-    TAG_array_32 -> fromIntegral <$> getWord32be
-    _    -> empty
-  V.replicateM len g
-
-getMap :: Get a -> Get b -> Get (V.Vector (a, b))
-getMap k v = do
-  len <- getWord8 >>= \case
-    t | t .&. 0xF0 == 0x80 ->
-      return $ fromIntegral $ t .&. 0x0F
-    TAG_map_16 -> fromIntegral <$> getWord16be
-    TAG_map_32 -> fromIntegral <$> getWord32be
-    _    -> empty
-  V.replicateM len $ (,) <$> k <*> v
-
-getExt :: Get (Word8, S.ByteString)
-getExt = do
-  len <- getWord8 >>= \case
-    TAG_fixext_1  -> return 1
-    TAG_fixext_2  -> return 2
-    TAG_fixext_4  -> return 4
-    TAG_fixext_8  -> return 8
-    TAG_fixext_16 -> return 16
-    TAG_ext_8     -> fromIntegral <$> getWord8
-    TAG_ext_16    -> fromIntegral <$> getWord16be
-    TAG_ext_32    -> fromIntegral <$> getWord32be
-    _             -> empty
-  (,) <$> getWord8 <*> getByteString len
+  where
+    decodeStr bs = case T.decodeUtf8' bs of
+      Left  _ -> fail "Data.MessagePack.Get.getObject: cannot decode bytestring to text"
+      Right v -> pure v
 
 getInt8 :: Get Int8
 getInt8 = fromIntegral <$> getWord8
@@ -165,8 +90,3 @@ getInt32be = fromIntegral <$> getWord32be
 
 getInt64be :: Get Int64
 getInt64be = fromIntegral <$> getWord64be
-
-tag :: Word8 -> Get ()
-tag t = do
-  b <- getWord8
-  guard $ t == b
