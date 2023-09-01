@@ -28,7 +28,7 @@ library
       src
   ghc-options:
       -Wall
-      -fno-warn-unused-imports
+      -Wno-unused-imports
   exposed-modules:
       Data.MessagePack
   other-modules:
@@ -50,7 +50,7 @@ executable msgpack-gen-sample
       tools
   ghc-options:
       -Wall
-      -fno-warn-unused-imports
+      -Wno-unused-imports
   main-is: msgpack-gen-sample.hs
   build-depends:
       base < 5
@@ -63,7 +63,7 @@ executable msgpack-parser
       tools
   ghc-options:
       -Wall
-      -fno-warn-unused-imports
+      -Wno-unused-imports
   main-is: msgpack-parser.hs
   build-depends:
       base < 5
@@ -79,7 +79,7 @@ test-suite testsuite
       Data.MessagePackSpec
   ghc-options:
       -Wall
-      -fno-warn-unused-imports
+      -Wno-unused-imports
   build-depends:
       base < 5
     , hspec
@@ -96,7 +96,7 @@ benchmark benchmark
       Data.MessagePackBench
   ghc-options:
       -Wall
-      -fno-warn-unused-imports
+      -Wno-unused-imports
   build-depends:
       base < 5
     , QuickCheck
