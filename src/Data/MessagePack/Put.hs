@@ -1,5 +1,4 @@
-{-# LANGUAGE LambdaCase  #-}
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE LambdaCase #-}
 --------------------------------------------------------------------
 -- |
 -- Module    : Data.MessagePack.Put

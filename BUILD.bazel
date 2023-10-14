@@ -1,4 +1,3 @@
-load("@ai_formation_hazel//tools:mangling.bzl", "hazel_library")
 load("@rules_haskell//haskell:defs.bzl", "haskell_library")
 load("//third_party/haskell/hspec-discover:build_defs.bzl", "hspec_test")
 load("//tools/project:build_defs.bzl", "project")
@@ -16,13 +15,13 @@ haskell_library(
     visibility = ["//visibility:public"],
     deps = [
         "//hs-msgpack-types",
-        hazel_library("base"),
-        hazel_library("binary"),
-        hazel_library("bytestring"),
-        hazel_library("data-binary-ieee754"),
-        hazel_library("monad-validate"),
-        hazel_library("text"),
-        hazel_library("vector"),
+        "//third_party/haskell:base",
+        "//third_party/haskell:binary",
+        "//third_party/haskell:bytestring",
+        "//third_party/haskell:data-binary-ieee754",
+        "//third_party/haskell:monad-validate",
+        "//third_party/haskell:text",
+        "//third_party/haskell:vector",
     ],
 )
 
@@ -32,7 +31,7 @@ hspec_test(
     deps = [
         ":hs-msgpack-binary",
         "//hs-msgpack-testsuite",
-        hazel_library("base"),
-        hazel_library("hspec"),
+        "//third_party/haskell:base",
+        "//third_party/haskell:hspec",
     ],
 )
