@@ -2,14 +2,11 @@ load("@rules_haskell//haskell:defs.bzl", "haskell_library")
 load("//third_party/haskell/hspec-discover:build_defs.bzl", "hspec_test")
 load("//tools/project:build_defs.bzl", "project")
 
-package(features = ["-layering_check"])
-
 project(license = "hs-msgpack")
 
 haskell_library(
     name = "hs-msgpack-binary",
     srcs = glob(["src/**/*.*hs"]),
-    compiler_flags = ["-Wno-unused-imports"],
     src_strip_prefix = "src",
     version = "0.0.17",
     visibility = ["//visibility:public"],

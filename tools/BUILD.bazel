@@ -1,10 +1,9 @@
 load("@rules_haskell//haskell:defs.bzl", "haskell_binary")
 
-package(features = ["-layering_check"])
-
 haskell_binary(
     name = "msgpack-parser",
     srcs = ["msgpack-parser.hs"],
+    visibility = ["//tools/haskell:__pkg__"],
     deps = [
         "//hs-msgpack-arbitrary",
         "//hs-msgpack-binary",
@@ -15,6 +14,7 @@ haskell_binary(
 haskell_binary(
     name = "msgpack-gen-sample",
     srcs = ["msgpack-gen-sample.hs"],
+    visibility = ["//tools/haskell:__pkg__"],
     deps = [
         "//hs-msgpack-arbitrary",
         "//hs-msgpack-binary",

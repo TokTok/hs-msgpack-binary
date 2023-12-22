@@ -16,19 +16,14 @@
 
 module Data.MessagePack.Get (getObject) where
 
-import           Control.Applicative    (empty, (<$), (<$>), (<*>), (<|>))
-import           Control.Monad          (guard, replicateM)
 import           Data.Binary            (Get)
 import           Data.Binary.Get        (getByteString, getWord16be,
                                          getWord32be, getWord64be, getWord8)
 import           Data.Binary.IEEE754    (getFloat32be, getFloat64be)
 import           Data.Bits              ((.&.))
-import qualified Data.ByteString        as S
 import           Data.Int               (Int16, Int32, Int64, Int8)
-import qualified Data.Text              as T
 import qualified Data.Text.Encoding     as T
 import qualified Data.Vector            as V
-import           Data.Word              (Word64, Word8)
 
 import           Data.MessagePack.Tags
 import           Data.MessagePack.Types (Object (..))

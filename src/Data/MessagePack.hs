@@ -28,7 +28,6 @@ module Data.MessagePack (
     , module X
     ) where
 
-import           Control.Applicative    (Applicative)
 import           Control.Monad          ((>=>))
 import           Control.Monad.Validate (MonadValidate (..), Validate,
                                          runValidate)
