@@ -3,6 +3,7 @@ load("@rules_haskell//haskell:defs.bzl", "haskell_binary")
 haskell_binary(
     name = "msgpack-parser",
     srcs = ["msgpack-parser.hs"],
+    tags = ["no-cross"],
     visibility = ["//tools/haskell:__pkg__"],
     deps = [
         "//hs-msgpack-arbitrary",
@@ -14,6 +15,7 @@ haskell_binary(
 haskell_binary(
     name = "msgpack-gen-sample",
     srcs = ["msgpack-gen-sample.hs"],
+    tags = ["no-cross"],
     visibility = ["//tools/haskell:__pkg__"],
     deps = [
         "//hs-msgpack-arbitrary",
