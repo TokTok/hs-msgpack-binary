@@ -28,7 +28,7 @@ haskell_library(
 
 hspec_test(
     name = "testsuite",
-    size = "small",
+    size = "medium",
     deps = [
         ":hs-msgpack-binary",
         "//hs-msgpack-testsuite",
